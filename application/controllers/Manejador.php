@@ -18,8 +18,7 @@ class Manejador extends CI_Controller {
     function string_between_two_string($str, $starting_word, $ending_word) 
 { 
     $subtring_start = strpos($str, $starting_word); 
-    //Adding the strating index of the strating word to  
-    //its length would give its ending index 
+    
     $subtring_start += strlen($starting_word);   
     //Length of our required sub string 
     $size = strpos($str, $ending_word, $subtring_start) - $subtring_start;   
@@ -42,10 +41,10 @@ class Manejador extends CI_Controller {
                 if($id == $db['id']){
                     $myPDO = new PDO("mysql:host={$db['host']};dbname={$db['name']};port={$db['port']}", $db['user'], $db['pass']);
                     try{
-                        if (strstr($data['query'], "PROCEDURE")) {
+                        if (strstr($data['query'], "CREATE  PROCEDURE")) {
                             $mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name'],$db['port']);
-                            $nombre_proc = $this->string_between_two_string ($data['query'],"PROCEDURE", '(');
-                            if (!$mysqli->query("DROP PROCEDURE IF EXISTS $nombre_proc[1]") ||  !$mysqli->query($data['query'])) {
+                            $nombre_proc = $this->string_between_two_string ($data['query'],"CREATE  PROCEDURE", '(');
+                            if (!$mysqli->query("DROP PROCEDURE IF EXISTS $nombre_proc") ||  !$mysqli->query($data['query'])) {
                                 array_push($errores, "Falló la creación del procedimiento almacenado: (" . $mysqli->errno . ") " . $mysqli->error);
                             } else {
                                 array_push($correctas, $db['name']. " correcto");
