@@ -1,5 +1,10 @@
 
    <style>
+   .table-wrapper {
+  max-height: 25em;
+  overflow: auto;
+  display:inline-block;
+}
    .loader {
   border: 16px solid #f3f3f3;
   border-radius: 50%;
@@ -206,7 +211,7 @@ $("#btnSaveQuery").click(()=>{
                     $(".error").show()
                       
                     } else {
-                        if(respuesta.correcto != null){
+                        if(respuesta.correcto != null && !$('#query').val().toLowerCase().includes('select') ){
 
                         $('#mensajes').append(`
                         <div class="alert alert-success completada fade show" role="alert">
@@ -218,6 +223,8 @@ $("#btnSaveQuery").click(()=>{
                         $(".completada").show()
                             var duration = 2000; //2 seconds
                         setTimeout(function () { $('.completada').alert('close'); }, duration);
+                        }else{
+                            $('#mensajes').append(respuesta.correcto);
                         }
                     }
                 })

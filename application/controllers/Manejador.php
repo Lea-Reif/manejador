@@ -50,7 +50,64 @@ class Manejador extends CI_Controller {
                                 array_push($correctas, $db['name']. " correcto");
 
                             }
-                        } else {
+                        } else if (strstr((strtolower($data['query'])), "select"))
+                        {
+                            $config['hostname'] = $db['host'];
+                            $config['username'] = $db['user'];
+                            $config['password'] = $db['pass'];
+                            $config['database'] = $db['name'];
+                            $config['dbdriver'] = 'mysqli';
+                            $this->load->database($config);
+
+                            $select = $this->db->query($data['query']);
+                            
+                            if ( $select) {
+                                $select = $select->result_array();
+                                $columnas= [];
+                                foreach ($select[0] as $key => $value) {
+                                    $columnas[] = $key;
+                                }
+
+                               $table = '<div class="card strpied-tabled-with-hover">
+                                <div class="card-header ">
+                                    <h4 class="card-title">Datos desde '. $db['db'].'</h4>
+                                </div>
+                                <div class="card-body table-full-width table-responsive">
+                                    <table class="table table-wrapper table-hover table-striped">
+                                    <thead>
+                                    <tr>';
+
+                                        foreach ($columnas as $value) {
+                                            $value = ucwords($value);
+                                            $table .= "<th>$value</th>";
+                                        }
+
+                                        $table .= '</tr></thead>
+                                        <tbody>';
+
+                                        foreach ($select as $item) {
+                                            $table .= '<tr>';
+                                            foreach ($item as  $val) {
+                                                $table .= "<td>$val</td>";
+                                            }
+                                            $table .= '</tr>';
+                                        }
+
+                                        $table .= '</tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div></br>';
+                                
+                                array_push($correctas, $table);
+                            } else {
+                                array_push($errores,$this->db->error()['message']);
+
+                            }
+                            $this->db->close();
+
+                        }
+                         else{
                             $myPDO->beginTransaction();
 
                             $result= $myPDO->prepare($data['query']);
