@@ -16,15 +16,24 @@ class Manejador extends CI_Controller {
     }
     
     function string_between_two_string($str, $starting_word, $ending_word) 
-{ 
-    $subtring_start = strpos($str, $starting_word); 
-    
-    $subtring_start += strlen($starting_word);   
-    //Length of our required sub string 
-    $size = strpos($str, $ending_word, $subtring_start) - $subtring_start;   
-    // Return the substring from the index substring_start of length size  
-    return substr($str, $subtring_start, $size);   
-} 
+    { 
+        $subtring_start = strpos($str, $starting_word); 
+        
+        $subtring_start += strlen($starting_word);   
+        //Length of our required sub string 
+        $size = strpos($str, $ending_word, $subtring_start) - $subtring_start;   
+        // Return the substring from the index substring_start of length size  
+        return substr($str, $subtring_start, $size);   
+    } 
+
+    function getTable($query)
+    {
+        $query = explode("from", $query);
+        $query = explode(" ", $query[1]);
+        $query = (strpos($query[1], ';') !== false) ? $query : explode(";", $query[1])[0]  ;
+        return $query;
+    }
+
 	public function ejecutar()
 	{
         $postData = json_encode($this->input->post());
@@ -58,52 +67,59 @@ class Manejador extends CI_Controller {
                             $config['database'] = $db['name'];
                             $config['dbdriver'] = 'mysqli';
                             $this->load->database($config);
-
-                            $select = $this->db->query($data['query']);
+                            $queries = explode(';',$data['query']);
                             
-                            if ( $select) {
-                                $select = $select->result_array();
-                                $columnas= [];
-                                foreach ($select[0] as $key => $value) {
-                                    $columnas[] = $key;
-                                }
-
-                               $table = '<div class="card strpied-tabled-with-hover">
-                                <div class="card-header ">
-                                    <h4 class="card-title">Datos desde '. $db['db'].'</h4>
-                                </div>
-                                <div class="card-body table-full-width table-responsive">
-                                    <table class="table table-wrapper table-hover table-striped">
-                                    <thead>
-                                    <tr>';
-
-                                        foreach ($columnas as $value) {
-                                            $value = ucwords($value);
-                                            $table .= "<th>$value</th>";
-                                        }
-
-                                        $table .= '</tr></thead>
-                                        <tbody>';
-
-                                        foreach ($select as $item) {
-                                            $table .= '<tr>';
-                                            foreach ($item as  $val) {
-                                                $table .= "<td>$val</td>";
+                            $table = '<div class="card strpied-tabled-with-hover">
+                            <h4 align="center" class="card-title">Datos desde '. $db['db'].'</h4>
+                            ';
+                            foreach ($queries as $key => $query) {
+                                if($query == "") continue;
+                                $select = $this->db->query($query);
+                                if ( $select) {
+                                    $select = $select->result_array();
+                                    $columnas= [];
+                                    foreach ($select[0] as $key => $value) {
+                                        $columnas[] = $key;
+                                    }
+                                       $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$this->getTable($query).'</b></p>
+                                    </div>
+                                    <div class="card-body table-full-width table-responsive">
+                                        <table class="table table-wrapper table-hover table-striped">
+                                        <thead>
+                                        <tr>';
+    
+                                            foreach ($columnas as $value) {
+                                                $value = ucwords($value);
+                                                $table .= "<th>$value</th>";
                                             }
-                                            $table .= '</tr>';
-                                        }
-
-                                        $table .= '</tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div></br>';
-                                
-                                array_push($correctas, $table);
-                            } else {
-                                array_push($errores,$this->db->error()['message']);
-
+    
+                                            $table .= '</tr></thead>
+                                            <tbody>';
+    
+                                            foreach ($select as $item) {
+                                                $table .= '<tr>';
+                                                foreach ($item as  $val) {
+                                                    $table .= "<td>$val</td>";
+                                                }
+                                                $table .= '</tr>';
+                                            }
+    
+                                            $table .= '</tr>
+                                            </tbody>
+                                        </table>
+                                        </div>
+                                    ';
+    
+                                    
+                                } else {
+                                    array_push($errores,$this->db->error()['message']);
+                                    
+                                }
                             }
+                            $table .= '</div>
+                        </br>';
+                             array_push($correctas, $table);
+
                             $this->db->close();
 
                         }
