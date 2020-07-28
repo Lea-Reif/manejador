@@ -77,6 +77,12 @@ class Manejador extends CI_Controller {
                                 $select = $this->db->query($query);
                                 if ( $select) {
                                     $select = $select->result_array();
+                                    if(count($select ) == 0) {
+                                        $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$this->getTable($query).' Vacia </b></p>
+                                        </div></div>';
+                                        continue;
+                                    }
+
                                     $columnas= [];
                                     foreach ($select[0] as $key => $value) {
                                         $columnas[] = $key;
