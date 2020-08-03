@@ -211,7 +211,7 @@ $("#btnSaveQuery").click(()=>{
                     $(".error").show()
                       
                     } else {
-                        if(respuesta.correcto != null && !$('#query').val().toLowerCase().includes('select') ){
+                        if(respuesta.correcto != null && /<\/?[a-z][\s\S]*>/i.test(respuesta.correcto) != true ){
 
                         $('#mensajes').append(`
                         <div class="alert alert-success completada fade show" role="alert">

@@ -15,6 +15,11 @@ class Manejador extends CI_Controller {
         $this->layout->view('test',['dbs'=>$db]);
     }
     
+    function hasWord($string,$word)
+    {
+        return strpos($string, $word) !== false ? true : false;
+    }
+    
     function string_between_two_string($str, $starting_word, $ending_word) 
     { 
         $subtring_start = strpos($str, $starting_word); 
@@ -25,6 +30,7 @@ class Manejador extends CI_Controller {
         // Return the substring from the index substring_start of length size  
         return substr($str, $subtring_start, $size);   
     } 
+
 
     function getTable($query)
     {
@@ -59,7 +65,8 @@ class Manejador extends CI_Controller {
                                 array_push($correctas, $db['name']. " correcto");
 
                             }
-                        } else if (strstr((strtolower($data['query'])), "select"))
+                        } 
+                        else if (!$this->hasWord($data['query'],"CREATE PROCEDURE") )
                         {
                             $config['hostname'] = $db['host'];
                             $config['username'] = $db['user'];
@@ -76,9 +83,10 @@ class Manejador extends CI_Controller {
                                 if($query == "") continue;
                                 $select = $this->db->query($query);
                                 if ( $select) {
+                                    $tbl = strstr((strtolower($data['query'])), "select") == true ? $this->getTable($query) : $data['query'];
                                     $select = $select->result_array();
                                     if(count($select ) == 0) {
-                                        $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$this->getTable($query).' Vacia </b></p>
+                                        $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$tbl.' Vacia </b></p>
                                         </div></div>';
                                         continue;
                                     }
@@ -87,7 +95,7 @@ class Manejador extends CI_Controller {
                                     foreach ($select[0] as $key => $value) {
                                         $columnas[] = $key;
                                     }
-                                       $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$this->getTable($query).'</b></p>
+                                       $table .='<div class="card-header "> <p class="card-category"> Tabla <b>'.$tbl.'</b></p>
                                     </div>
                                     <div class="card-body table-full-width table-responsive">
                                         <table class="table table-wrapper table-hover table-striped">
@@ -123,10 +131,10 @@ class Manejador extends CI_Controller {
                                 }
                             }
                             $table .= '</div>
-                        </br>';
-                             array_push($correctas, $table);
+                            </br>';
+                                array_push($correctas, $table);
 
-                            $this->db->close();
+                                $this->db->close();
 
                         }
                          else{
