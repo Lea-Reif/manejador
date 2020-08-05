@@ -66,7 +66,7 @@ class Manejador extends CI_Controller {
 
                             }
                         } 
-                        else if (!$this->hasWord($data['query'],"CREATE PROCEDURE") )
+                        else if (explode(' ',trim(strtolower($data['query'])))[0] === "select")
                         {
                             $config['hostname'] = $db['host'];
                             $config['username'] = $db['user'];

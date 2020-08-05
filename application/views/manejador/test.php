@@ -148,6 +148,11 @@ $("textarea").keydown(function(e) {
         // prevent the focus lose
         e.preventDefault();
     }
+
+    if (e.ctrlKey && e.keyCode == 13) {
+      $('#ejecutar').trigger("click");
+
+  }
 });
 $("#guardar").click(()=>{
     $("#queryInfo").val($('#query').val());
