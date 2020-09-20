@@ -37,14 +37,55 @@
 
 <div class="float-left border" style=" height: 15em;" >
         <h4 align="center">Instancias</h4>
-        <select  class="selectpicker float-left " required name="conns[]" multiple data-live-search="true" data-actions-box="true" id="conn">
-            <?php foreach($dbs as $number => $db) { ?>
-            <option value="<?php echo $db['id'] ?>"><?php echo $db['db'] ?></option>
-                        <?php } ?>
+        <select  class="selectpicker " required name="conns[]" multiple data-live-search="true" data-actions-box="true" id="conn">
+
+            <?php foreach($dbs as $index => $groups) { ?>
+              <optgroup label="<?php echo $index ?>" > 
+              <?php foreach($groups as $db) { ?>
+                <option value="<?php echo $db['id'] ?>"><?php echo $db['db'] ?></option>
+                  <?php } ?>
+                  </optgroup>
+            <?php } ?>
         </select>
+                <br>
+        <button data-toggle="modal" data-target="#modalGrupos" class="btn btn-primary ml-2 mt-2" >Mostrar Grupos</button>
 </div>
             <br>
-                
+                <!-- Modal Grupos -->
+                <div class="modal fade " id="modalGrupos" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Grupos de DB's</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <form id="formGroups">
+                <label for="ids">Seleccione las DB's para agrupar
+                        <select  class="selectpicker " required name="ids[]" multiple data-live-search="true" data-actions-box="true" id="ids">
+                          <?php foreach($dbs as $index => $groups) { ?>
+                            <optgroup label="<?php echo $index ?>" > 
+                            <?php foreach($groups as $db) { ?>
+                              <option value="<?php echo $db['id'] ?>"><?php echo $db['db'] ?></option>
+                                <?php } ?>
+                                </optgroup>
+                          <?php } ?>
+                      </select>
+                </label>
+                          <input type="text" class=" form-control " id="new" placeholder="Nombre del Grupo" name = "new">
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" id ="updateGoups" class="btn btn-primary">Actualizar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- FIn Modal Grupos  -->
+
         <div class="float-right">
         <button class="btn btn-success " id="ejecutar">Ejecutar consulta</button>
                 <br><br>
@@ -153,7 +194,12 @@ $("textarea").keydown(function(e) {
       $('#ejecutar').trigger("click");
 
   }
+
+
 });
+
+
+
 $("#guardar").click(()=>{
     $("#queryInfo").val($('#query').val());
     $('#modalSave').modal('show');
@@ -189,6 +235,32 @@ $("#btnSaveQuery").click(()=>{
             })
         }
 })
+
+$("#updateGoups").click(()=>{
+    let data =$("#formGroups").serializeArray() ;
+        
+    if($("#new").val() =='' ){
+            alert('Hay campos vacios.');
+            return
+        }
+    $.ajax({
+            url:'<?php echo base_url()  ?>manejador/updateGroups',
+            method: 'post',
+            data: data,
+            dataType: 'json',
+            success: function(data){
+              console.log(data);
+              window.location.href = window.location.href;
+            },error: function(data){
+              alert('Datos Actualizados')
+              if(data.status === 200) window.location.href = window.location.href;
+            }
+        
+            })
+        
+})
+
+
     $('#ejecutar').on('click',()=>{
         $('.loader').css('display','block');
         $('#mensajes').empty();

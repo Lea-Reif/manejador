@@ -23,7 +23,19 @@ class Query extends CI_Model {
 
             }
     
-return json_encode($json);
+   return json_encode($json);
+ }
+
+ function getGroups(){
+    
+   $str = file_get_contents(base_url().'json/grupos.json');
+   $json = json_decode($str);
+   foreach ($json as $key => $db) {
+               $db->id= $key;
+
+         }
+    
+   return json_encode($json);
  }
  function saveConsulta($data){
 
@@ -39,4 +51,15 @@ return json_encode($json);
  
  }
 
+ function updateGroups($data)
+ {
+    extract($data);
+   $dbs = json_decode($this->getDb());
+   foreach ($dbs as $key => $db) {
+      if(in_array($db->id,$ids))$dbs[$key]->group = $new;
+      unset($dbs[$key]->id);
+  }
+  $dbs = json_encode($dbs);
+  file_put_contents(dirname(__FILE__,3).'/json/db.json', $dbs);
+ }
 }

@@ -11,7 +11,14 @@ class Manejador extends CI_Controller {
 
 	public function index()
 	{
-        $db = json_decode($this->man->getDb(),true);
+        $databases = json_decode($this->man->getDb(),true);
+        foreach($databases as $database)
+        { if(isset($database['group']))
+                $db[$database['group']][] = $database;
+            else
+            $db['Sin Grupo'][] = $database;
+        }
+        ksort($db);
         $this->layout->view('test',['dbs'=>$db]);
     }
     
@@ -20,6 +27,11 @@ class Manejador extends CI_Controller {
         return strpos($string, $word) !== false ? true : false;
     }
     
+    function updateGroup()
+    {
+
+    }
+
     function string_between_two_string($str, $starting_word, $ending_word) 
     { 
         $subtring_start = strpos($str, $starting_word); 
@@ -42,9 +54,8 @@ class Manejador extends CI_Controller {
 
 	public function ejecutar()
 	{
-        $postData = json_encode($this->input->post());
         $json_file = json_decode($this->man->getDb(),true);
-        $data = json_decode($postData,true);
+        $data = $this->input->post();
         $dbs= $json_file; 
 
         $errores = [];
@@ -218,28 +229,11 @@ class Manejador extends CI_Controller {
 
     }
 
- public function prueba(){
-
-
-
-$arrayquerys=['query1-bien','query2-bien','query3-bien','query4-mal','query5-bien'];
-
-$arrayRollback = [];
-        foreach ($arrayquerys as $b) {
-            array_push($arrayRollback,"echo {$b}");
-            echo $b;
-            if (strpos($b, 'mal') !== false) { 
-                echo "Aqui";
-                break 1;  // this will break both foreach loops
-            }
-            // unset($arrayRollback);
-        }
-    if (!empty($arrayRollback)) { 
-       foreach ($arrayRollback as $key => $rollback) {
-           call_user_func($rollback);
-       }
+    public function updateGroups()
+    {
+        $this->man->updateGroups($this->input->post());
+        exit();
     }
- }
 
 }
 
